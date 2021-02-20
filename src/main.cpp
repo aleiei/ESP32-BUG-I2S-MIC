@@ -117,7 +117,7 @@ void loop() {
     if (!connected) {
         if (udp.connect(udpAddress, udpPort)) {
             connected = true;
-            Serial.println( "Connected to UDP Listener");
+            Serial.println("Connected to UDP Listener");
             Serial.println("Under Linux for listener use: netcat -u -p 16500 -l | play -t s16 -r 48000 -c 2 -");
             Serial.println("Under Linux for recorder use: netcat -u -p 16500 -l | rec -t s16 -r 48000 -c 2 - file.mp3");
 
