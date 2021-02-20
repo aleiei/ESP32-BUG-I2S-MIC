@@ -87,10 +87,6 @@ void setup() {
         while (true);
     }
 
-    // Only if you have SPH0645 Microphone.
-    //REG_SET_BIT(I2S_TIMING_REG(I2S_PORT), BIT(9));
-    //REG_SET_BIT(I2S_CONF_REG(I2S_PORT), I2S_RX_MSB_SHIFT);
-
     err = i2s_set_pin(I2S_PORT, &pin_config);
     if (err != ESP_OK) {
         Serial.printf("Failed setting pin: %d\n", err);
