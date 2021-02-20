@@ -23,6 +23,7 @@
    netcat -u -p 16500 -l | play -t s16 -r 48000 -c 2 -
    Under Linux for recorder (give for file.mp3 the name you prefer) : 
    netcat -u -p 16500 -l | rec -t s16 -r 48000 -c 2 - file.mp3
+   
 */
 
 #include <Arduino.h>
