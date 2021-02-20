@@ -32,8 +32,8 @@
 #include <soc/i2s_reg.h>
 
 //Set youy WiFi network name and password:
-const char* ssid = "WebPocket-C038";
-const char* pswd = "M45BGQM5";
+const char* ssid = "your_ssid";
+const char* pswd = "your_password";
 
 // Set your listener PC's IP here in according with your DHCP network. In my case is 192.168.1.40:
 IPAddress udpAddress(192, 168, 1, 40);
