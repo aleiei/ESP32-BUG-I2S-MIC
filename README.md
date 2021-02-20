@@ -8,7 +8,7 @@ You just need to change the file extension from cpp to ino and delete "#include 
 
 The project is very simple and requires only a few connections.
 
-#### Below you can find the connection diagram for NodeMCU.
+#### Below you can find the connection diagram for ESP32 Devkit C V2
 
 ![Diagram](/images/ESP32_I2S_MEMS.png)
 
