@@ -144,7 +144,6 @@ void loop() {
             case 3: // send second half of the buffer
                 state = 0;
                 udp.write((uint8_t*)buffer+1024, 1024);
-                buffer[3] = 0x42 + rpt;
                 break;
         }
     }   
