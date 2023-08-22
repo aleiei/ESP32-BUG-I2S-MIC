@@ -33,11 +33,11 @@
 #include <soc/i2s_reg.h>
 
 //Set youy WiFi network name and password:
-const char* ssid = "your_ssid";
-const char* pswd = "your_password";
+const char* ssid = "ssid";
+const char* pswd = "password";
 
 // Set your listener PC's IP here in according with your DHCP network. In my case is 192.168.1.40:
-IPAddress udpAddress(192, 168, 1, 40);
+IPAddress udpAddress(192, 168, 0, 158);
 const int udpPort = 16500; //UDP Listener Port:
 
 boolean connected = false; //UDP State:
@@ -101,7 +101,12 @@ volatile uint16_t rpt = 0; // Pointer
 
 void i2s_mic()
 {
-    int num_bytes_read = i2s_read_bytes(I2S_PORT, (char*)buffer + rpt, block_size, portMAX_DELAY);
+    size_t num_bytes_read;
+    int err = i2s_read(I2S_PORT, (char*)buffer + rpt, block_size, &num_bytes_read, portMAX_DELAY);
+    if (err != ESP_OK) {
+        Serial.printf("Failed to read i2s_mic: %d\n", err);
+        while (true);
+    }
     rpt = rpt + num_bytes_read;
     if (rpt > 2043) rpt = 0;
 }
@@ -110,6 +115,7 @@ void i2s_mic()
 void loop() {
     static uint8_t state = 0; 
     i2s_mic();
+    uint8_t hello[6] = "hello";
 
     if (!connected) {
         if (udp.connect(udpAddress, udpPort)) {
@@ -117,6 +123,7 @@ void loop() {
             Serial.println("Connected to UDP Listener");
             Serial.println("Under Linux for listener use: netcat -u -p 16500 -l | play -t s16 -r 48000 -c 2 -");
             Serial.println("Under Linux for recorder use: netcat -u -p 16500 -l | rec -t s16 -r 48000 -c 2 - file.mp3");
+            udp.write(hello, 6);
 
         }
     }
@@ -139,6 +146,7 @@ void loop() {
             case 3: // send second half of the buffer
                 state = 0;
                 udp.write((uint8_t*)buffer+1024, 1024);
+                buffer[3] = 0x42 + rpt;
                 break;
         }
     }   
