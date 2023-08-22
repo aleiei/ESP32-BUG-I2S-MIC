@@ -115,7 +115,6 @@ void i2s_mic()
 void loop() {
     static uint8_t state = 0; 
     i2s_mic();
-    uint8_t hello[6] = "hello";
 
     if (!connected) {
         if (udp.connect(udpAddress, udpPort)) {
@@ -123,7 +122,6 @@ void loop() {
             Serial.println("Connected to UDP Listener");
             Serial.println("Under Linux for listener use: netcat -u -p 16500 -l | play -t s16 -r 48000 -c 2 -");
             Serial.println("Under Linux for recorder use: netcat -u -p 16500 -l | rec -t s16 -r 48000 -c 2 - file.mp3");
-            udp.write(hello, 6);
 
         }
     }
