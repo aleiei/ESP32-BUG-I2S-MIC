@@ -64,7 +64,7 @@ void setup() {
     esp_err_t err;
     const i2s_config_t i2s_config = {
         .mode = i2s_mode_t(I2S_MODE_MASTER | I2S_MODE_RX), 
-        .sample_rate = 96000,
+        .sample_rate = 48000,
         .bits_per_sample = I2S_BITS_PER_SAMPLE_16BIT, 
         .channel_format = I2S_CHANNEL_FMT_ONLY_LEFT,  
         .communication_format = i2s_comm_format_t(I2S_COMM_FORMAT_I2S | I2S_COMM_FORMAT_I2S_MSB),
@@ -96,14 +96,14 @@ void setup() {
     Serial.println("I2S driver OK");
 }
 
-int32_t buffer[512];    // Buffer
-volatile uint16_t rpt = 0; // Pointer
+int32_t buffer[512];    // Buffer (2048 bytes)
+volatile size_t rpt = 0; // Pointer in bytes
 
 void i2s_mic()
 {
-    int num_bytes_read = i2s_read_bytes(I2S_PORT, (char*)buffer + rpt, block_size, portMAX_DELAY);
-    rpt = rpt + num_bytes_read;
-    if (rpt > 2043) rpt = 0;
+    size_t num_bytes_read = i2s_read_bytes(I2S_PORT, (char*)buffer + rpt, block_size, portMAX_DELAY);
+    rpt += num_bytes_read;
+    if (rpt >= sizeof(buffer)) rpt = 0;
 }
 
 
@@ -123,22 +123,22 @@ void loop() {
     else {
         switch (state) {
             case 0: // wait for index to pass halfway
-                if (rpt > 1023) {
+                if (rpt > (sizeof(buffer) / 2 - 1)) {
                 state = 1;
                 }
                 break;
             case 1: // send the first half of the buffer
                 state = 2;
-                udp.write( (uint8_t *)buffer, 1024);
+                udp.write(((uint8_t*)buffer), sizeof(buffer) / 2);
                 break;
             case 2: // wait for index to wrap
-                if (rpt < 1023) {
+                if (rpt < (sizeof(buffer) / 2)) {
                     state = 3;
                 }
                 break;
             case 3: // send second half of the buffer
                 state = 0;
-                udp.write((uint8_t*)buffer+1024, 1024);
+                udp.write(((uint8_t*)buffer) + (sizeof(buffer) / 2), sizeof(buffer) / 2);
                 break;
         }
     }   
