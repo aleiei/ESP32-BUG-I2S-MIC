@@ -67,7 +67,7 @@ void setup() {
         .sample_rate = 48000,
         .bits_per_sample = I2S_BITS_PER_SAMPLE_16BIT, 
         .channel_format = I2S_CHANNEL_FMT_ONLY_LEFT,  
-        .communication_format = i2s_comm_format_t(I2S_COMM_FORMAT_I2S | I2S_COMM_FORMAT_I2S_MSB),
+        .communication_format = I2S_COMM_FORMAT_STAND_I2S,
         .intr_alloc_flags = ESP_INTR_FLAG_LEVEL1,
         .dma_buf_count = 4,                    
         .dma_buf_len = block_size,
@@ -101,7 +101,8 @@ volatile size_t rpt = 0; // Pointer in bytes
 
 void i2s_mic()
 {
-    size_t num_bytes_read = i2s_read_bytes(I2S_PORT, (char*)buffer + rpt, block_size, portMAX_DELAY);
+    size_t num_bytes_read = 0;
+    i2s_read(I2S_PORT, ((uint8_t*)buffer) + rpt, block_size, &num_bytes_read, portMAX_DELAY);
     rpt += num_bytes_read;
     if (rpt >= sizeof(buffer)) rpt = 0;
 }
