@@ -16,9 +16,7 @@
    OR OTHER DEALINGS IN THE SOFTWARE.
    
    Description:
-   Simple I2S INMP441 MEMS microphone Audio Streaming via UDP transmitter
-   Needs a UDP listener like netcat on port 16500 on listener PC
-   Needs a SoX with mp3 handler for Recorder
+   Simple Bug with I2S INMP441 MEMS microphone and Audio Streaming via UDP
    Under Linux for listener:
    netcat -u -p 16500 -l | play -t s16 -r 48000 -c 2 -
    Under Linux for recorder (give for file.mp3 the name you prefer) : 
@@ -32,17 +30,17 @@
 #include <driver/i2s.h>
 #include <soc/i2s_reg.h>
 
-//Set youy WiFi network name and password:
+
 const char* ssid = "your_ssid";
 const char* pswd = "your_password";
 
-// Set your listener PC's IP here in according with your DHCP network. In my case is 192.168.1.40:
+
 IPAddress udpAddress(192, 168, 1, 40);
-const int udpPort = 16500; //UDP Listener Port:
+const int udpPort = 16500;
 
-boolean connected = false; //UDP State:
+boolean connected = false;
 
-AsyncUDP udp; //Class UDP:
+AsyncUDP udp;
 
 const i2s_port_t I2S_PORT = I2S_NUM_0;
 const int block_size = 128;
@@ -59,7 +57,7 @@ void setup() {
         }
     }
 
-    // I2S CONFIG
+    
     Serial.println("Configuring I2S port");
     esp_err_t err;
     const i2s_config_t i2s_config = {
@@ -73,15 +71,15 @@ void setup() {
         .dma_buf_len = block_size,
     };
 
-    // ESP32 GPIO PINS > I2S MIC PINS:
+    
     const i2s_pin_config_t pin_config = {
-        .bck_io_num = 26,   // > SCK
-        .ws_io_num = 25,    // > WS
-        .data_out_num = -1, // Serial Data Out is no connected
-        .data_in_num = 32,  // > SD
+        .bck_io_num = 26,
+        .ws_io_num = 25,
+        .data_out_num = -1,
+        .data_in_num = 32,
     };
 
-    // CONFIGURE I2S DRIVER AND PINS.
+   
     err = i2s_driver_install(I2S_PORT, &i2s_config, 0, NULL);
     if (err != ESP_OK) {
         Serial.printf("Failed installing driver: %d\n", err);
@@ -96,8 +94,8 @@ void setup() {
     Serial.println("I2S driver OK");
 }
 
-int32_t buffer[512];    // Buffer (2048 bytes)
-volatile size_t rpt = 0; // Pointer in bytes
+int32_t buffer[512];
+volatile size_t rpt = 0;
 
 void i2s_mic()
 {
@@ -123,21 +121,21 @@ void loop() {
     }
     else {
         switch (state) {
-            case 0: // wait for index to pass halfway
+            case 0:
                 if (rpt > (sizeof(buffer) / 2 - 1)) {
                 state = 1;
                 }
                 break;
-            case 1: // send the first half of the buffer
+            case 1:
                 state = 2;
                 udp.write(((uint8_t*)buffer), sizeof(buffer) / 2);
                 break;
-            case 2: // wait for index to wrap
+            case 2:
                 if (rpt < (sizeof(buffer) / 2)) {
                     state = 3;
                 }
                 break;
-            case 3: // send second half of the buffer
+            case 3:
                 state = 0;
                 udp.write(((uint8_t*)buffer) + (sizeof(buffer) / 2), sizeof(buffer) / 2);
                 break;
